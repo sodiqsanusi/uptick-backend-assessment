@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { DBURL } = require("./env");
+const colors = require("colors")
 
 let connectDB = async () => {
   try {
