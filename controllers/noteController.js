@@ -14,7 +14,7 @@ const getAllNotes = asyncHandler(async (req, res) => {
 // @access  Private
 const addOneNote = asyncHandler(async (req, res) => {
   const data = req.body;
-  if(!data.title || !data.body){
+  if (!data.title || !data.body) {
     res.status(400);
     throw new Error("You didn't add in all necessary data to create a note")
   }
@@ -40,7 +40,7 @@ const deleteAllNotes = asyncHandler(async (req, res) => {
 const getOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
   let specificNote = await Note.findById(noteID);
-  if(!specificNote){
+  if (!specificNote) {
     res.status(400);
     throw new Error("Couldn't find the specified note you requested for")
   }
@@ -54,19 +54,19 @@ const updateOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
   //* Initial check to confirm that requested note (by ID) does exist
   const specificNote = await Note.findById(noteID);
-  if(!specificNote){
+  if (!specificNote) {
     res.status(400);
     throw new Error("Couldn't find the specified note you requested for")
   }
 
   //* Further checks to make sure request contains all necessary data required to update the note fully
   const data = req.body;
-  if(!data.title || !data.body){
+  if (!data.title || !data.body) {
     res.status(400);
-    throw new Error("You didn't add in all necessary data to create a note")
+    throw new Error("You didn't add in all necessary data to update a note")
   }
 
-  const updatedNote = await Note.findByIdAndUpdate(noteID, data, {new: true})
+  const updatedNote = await Note.findByIdAndUpdate(noteID, data, { new: true })
   res.status(200).json(updatedNote);
 })
 
@@ -77,7 +77,7 @@ const deleteOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
   //* Initial check to confirm that requested note (by ID) does exist
   const specificNote = await Note.findById(noteID);
-  if(!specificNote){
+  if (!specificNote) {
     res.status(400);
     throw new Error("Couldn't find the specified note you requested for")
   }
