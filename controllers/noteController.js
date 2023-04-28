@@ -5,24 +5,33 @@ const asyncHandler = require("express-async-handler");
 // @route   GET /api/notes/
 // @access  Private
 const getAllNotes = asyncHandler(async (req, res) => {
-  let message = "Get all the notes from a user"
-  res.status(200).json({message});
+  let allNotes = await Note.find({});
+  res.status(200).json(allNotes);
 })
 
 // @desc    Add a new note to the total notes of a user
 // @route   POST /api/notes/
 // @access  Private
 const addOneNote = asyncHandler(async (req, res) => {
-  let message = "Add one note to a user's note"
-  res.status(200).json({message});
+  const data = req.body;
+  if(!data.title || !data.body){
+    res.status(400);
+    throw new Error("You didn't add in all necessary data to create a note")
+  }
+
+  let newNote = await Note.create(data);
+  res.status(201).json(newNote);
 })
 
 // @desc    Delete all the notes of a user
 // @route   DELETE /api/notes/
 // @access  Private
 const deleteAllNotes = asyncHandler(async (req, res) => {
-  let message = "Delete all the notes of a user";
-  res.status(200).json({message});
+  let deletedNotesCount = await Note.deleteMany({})
+  res.status(200).json({
+    message: "All notes created by the user has been deleted",
+    ...deletedNotesCount,
+  });
 })
 
 // @desc    Get a particular note of a user by ID
@@ -30,8 +39,12 @@ const deleteAllNotes = asyncHandler(async (req, res) => {
 // @access  Private
 const getOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
-  let message = `Get a particular note of ID ${noteID} from a user`;
-  res.status(200).json({message});
+  let specificNote = await Note.findById(noteID);
+  if(!specificNote){
+    res.status(400);
+    throw new Error("Couldn't find the specified note you requested for")
+  }
+  res.status(200).json(specificNote);
 })
 
 // @desc    Change the details of a particular note of a user by ID
@@ -39,8 +52,22 @@ const getOneNote = asyncHandler(async (req, res) => {
 // @access  Private
 const updateOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
-  let message = `Update a particular note of ID ${noteID} of a user`
-  res.status(200).json({message});
+  //* Initial check to confirm that requested note (by ID) does exist
+  const specificNote = await Note.findById(noteID);
+  if(!specificNote){
+    res.status(400);
+    throw new Error("Couldn't find the specified note you requested for")
+  }
+
+  //* Further checks to make sure request contains all necessary data required to update the note fully
+  const data = req.body;
+  if(!data.title || !data.body){
+    res.status(400);
+    throw new Error("You didn't add in all necessary data to create a note")
+  }
+
+  const updatedNote = await Note.findByIdAndUpdate(noteID, data, {new: true})
+  res.status(200).json(updatedNote);
 })
 
 // @desc    Delete a particular note of a user by ID
@@ -48,8 +75,18 @@ const updateOneNote = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteOneNote = asyncHandler(async (req, res) => {
   const noteID = req.params.id;
-  let message = `Delete a particular note of ID ${noteID} from a user's notes`;
-  res.status(200).json({message});
+  //* Initial check to confirm that requested note (by ID) does exist
+  const specificNote = await Note.findById(noteID);
+  if(!specificNote){
+    res.status(400);
+    throw new Error("Couldn't find the specified note you requested for")
+  }
+
+  let deletedNote = await Note.findByIdAndDelete(noteID);
+  res.status(200).json({
+    message: `Deleted note with ID: ${noteID}`,
+    ...deletedNote,
+  });
 })
 
 

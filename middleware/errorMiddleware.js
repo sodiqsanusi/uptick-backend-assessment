@@ -2,7 +2,7 @@ const { NODE_ENV } = require("../config/env");
 
 let errorMiddleware = (err, req, res, next) => {
 
-  let errStatus = err.statusCode || 500;
+  let errStatus = res.statusCode || 500;
   let errMessage = err.message || "An error occured while making this request";
 
   res.status(errStatus).json({
