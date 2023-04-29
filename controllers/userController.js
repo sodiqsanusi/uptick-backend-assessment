@@ -1,6 +1,15 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const { JWT_SECRET } = require("../config/env");
+
+//* Generate a JWT (Json Web Token)
+const generateToken = (id) => {
+  return jwt.sign({ id }, JWT_SECRET, {
+    expiresIn: "30d",
+  })
+}
 
 // @desc    Create a new user using the data provided on registration
 // @route   POST /api/user/register
@@ -25,15 +34,49 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password: hash,
   })
-  res.status(200).json(newUser);
+
+  if (newUser) {
+    let responseData = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      token: generateToken(newUser.id),
+    }
+
+    res.status(201).json(responseData)
+  } else {
+    res.status(400);
+    throw new Error("Creation of a new user with the inputted details was unsuccessful");
+  }
 })
 
 // @desc    Login into an existing user's account
 // @route   POST /api/user/login
 // @access  Public
 const logUserIn = asyncHandler(async (req, res) => {
-  let message = "Request to log a user in";
-  res.status(200).json({ message });
+  let { email, password } = req.body;
+
+  //* Confirm all required data for logging in was provided
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("You didn't add in all necessary data required to log into your account")
+  }
+
+  //* Check if the user exists in the database
+  const doesUserExist = await User.findOne({ email });
+  if (doesUserExist && (await bcrypt.compare(password, doesUserExist.password))) {
+    let responseData = {
+      id: doesUserExist.id,
+      name: doesUserExist.name,
+      email: doesUserExist.email,
+      token: generateToken(doesUserExist.id),
+    }
+
+    res.status(200).json(responseData)
+  } else {
+    res.status(400);
+    throw new Error("The login details provided doesn't match any existing user");
+  }
 })
 
 // @desc    Get the details of a user
