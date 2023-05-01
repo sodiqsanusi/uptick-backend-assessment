@@ -123,9 +123,14 @@ const deleteOneNote = asyncHandler(async (req, res) => {
   }
 
   let deletedNote = await Note.findByIdAndDelete(noteID);
-  res.status(200).json({
-    message: `Deleted note with ID: ${noteID}`,
-  });
+  if (deletedNote) {
+    res.status(200).json({
+      message: `Deleted note with ID: ${noteID}`,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Deleting the note from the database was unsuccessful, try again")
+  }
 })
 
 
