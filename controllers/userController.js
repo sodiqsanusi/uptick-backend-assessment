@@ -83,8 +83,7 @@ const logUserIn = asyncHandler(async (req, res) => {
 // @route   GET /api/user/me
 // @access  Private
 const getUserDetails = asyncHandler(async (req, res) => {
-  let message = "Request to get a user's details";
-  res.status(200).json({ message });
+  res.status(200).json(req.user)
 })
 
 module.exports = {

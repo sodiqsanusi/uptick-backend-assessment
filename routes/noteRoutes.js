@@ -8,16 +8,18 @@ const {
   updateOneNote,
   deleteOneNote,
 } = require("../controllers/noteController");
+const protect = require("../middleware/authMiddleware");
+
 
 router.route("/")
-  .get(getAllNotes)
-  .post(addOneNote)
-  .delete(deleteAllNotes);
+  .get(protect, getAllNotes)
+  .post(protect, addOneNote)
+  .delete(protect, deleteAllNotes);
 
 
 router.route("/:id")
-  .get(getOneNote)
-  .put(updateOneNote)
-  .delete(deleteOneNote);
+  .get(protect, getOneNote)
+  .put(protect, updateOneNote)
+  .delete(protect, deleteOneNote);
 
 module.exports = router;
